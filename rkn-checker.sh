@@ -36,4 +36,4 @@ done
 
 bannedsites="$bannedsites%0AAbout rkn-checker: https://banochkin.com/blog/rkn-checker/"
 
-curl -s "https://api.telegram.org/bot$token/sendMessage?chat_id=$userId&text=$bannedsites" > /dev/null
+curl -s "https://api.telegram.org/bot$token/sendMessage?chat_id=$userId&disable_web_page_preview=True&text=$bannedsites" > /dev/null
