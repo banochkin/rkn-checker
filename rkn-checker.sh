@@ -15,11 +15,23 @@ getSites() {
         sites+=("$line")
     done < "$1"
 }
-getSites "sites.txt"
+
+if [ -n "$1" ]; then
+    sitesFile=$1
+else
+    sitesFile="sites.txt"
+fi
+
+sendToTelegram() {
+    if [ $i -ge 1 ]; then
+        curl -s $url > /dev/null
+    fi
+}
+
+getSites "$sitesFile"
 
 echo "Getting dump.csv"
-wget -q -O dump.csv https://raw.githubusercontent.com/zapret-info/z-i/master/dump.csv
-echo
+wget -q --show-progress -O dump.csv https://raw.githubusercontent.com/zapret-info/z-i/master/dump.csv
 echo "${bold}Done${normal}"
 
 bannedsites="⛔ Banned sites:%0A"
@@ -39,14 +51,22 @@ for site in "${sites[@]}"; do
 done
 
 echo
-echo "${bold}Banned: $i.${normal}"
-
+echo "${bold}Banned: $i${normal}"
 echo
 echo "About rkn-checker: https://banochkin.com/blog/rkn-checker/"
 echo
 
-bannedsites="$bannedsites%0AAbout rkn-checker: https://banochkin.com/blog/rkn-checker/"
+url="https://api.telegram.org/bot${token}/sendMessage?chat_id=${userId}&text="${bannedsites}"%0AAbout rkn-checker: https://banochkin.com/blog/rkn-checker/&disable_web_page_preview=True"
+url=$(echo "$url" | sed 's/ /%20/g')
 
-if [ $i -ge 1 ]; then
-    curl -s "https://api.telegram.org/bot$token/sendMessage?chat_id=$userId&disable_web_page_preview=True&text=$bannedsites" > /dev/null
+md5Current="$(echo $bannedsites | md5)"
+if test -f "${sitesFile}.md5"; then # Проверяем, существует ли файл
+    md5Old=$(cat ${sitesFile}.md5)
+    if [ "$md5Old" != "$md5Current" ]; then
+        echo "$md5Current" > ${sitesFile}.md5
+        sendToTelegram
+    fi
+else
+    echo "$md5Current" > ${sitesFile}.md5
+    sendToTelegram
 fi
