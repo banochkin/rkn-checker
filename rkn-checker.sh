@@ -8,6 +8,12 @@ normal=$(tput sgr0)
 token=$(head -1 "settings.conf")
 userId=$(tail -1 "settings.conf")
 
+if which md5 >/dev/null 2>&1; then
+    md5_command="md5"
+else
+    md5_command="md5sum"
+fi
+
 getSites() {
     sites=()
     while IFS= read -r line || [[ -n "$line" ]]
@@ -59,7 +65,7 @@ echo
 url="https://api.telegram.org/bot${token}/sendMessage?chat_id=${userId}&text="${bannedsites}"%0AAbout rkn-checker: https://banochkin.com/blog/rkn-checker/&disable_web_page_preview=True"
 url=$(echo "$url" | sed 's/ /%20/g')
 
-md5Current="$(echo $bannedsites | md5)"
+md5Current="$(echo $bannedsites | "$md5_command")"
 if test -f "${sitesFile}.md5"; then
     md5Old=$(cat ${sitesFile}.md5)
     if [ "$md5Old" != "$md5Current" ]; then
