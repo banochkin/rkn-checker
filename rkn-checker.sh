@@ -60,7 +60,7 @@ url="https://api.telegram.org/bot${token}/sendMessage?chat_id=${userId}&text="${
 url=$(echo "$url" | sed 's/ /%20/g')
 
 md5Current="$(echo $bannedsites | md5)"
-if test -f "${sitesFile}.md5"; then # Проверяем, существует ли файл
+if test -f "${sitesFile}.md5"; then
     md5Old=$(cat ${sitesFile}.md5)
     if [ "$md5Old" != "$md5Current" ]; then
         echo "$md5Current" > ${sitesFile}.md5
